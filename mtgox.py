@@ -22,9 +22,15 @@ class MtGoxWorker(threading.Thread):
         
         connection = httplib.HTTPSConnection('mtgox.com')
         
-	cursor = db.cursor()
-	cursor.execute("select max(tid) from trades where currency=?",(self.currency,))
-	max_tid = int(cursor.fetchone()[0])
+        cursor = db.cursor()
+        cursor.execute("select max(tid) from trades where currency=?",(self.currency,))
+
+        latest_trade = cursor.fetchone()
+
+        if latest_trade[0] is None:
+            max_tid = 0
+        else:
+            max_tid = int(latest_trade[0])
         
         with print_lock:
             print "connected",self.currency
